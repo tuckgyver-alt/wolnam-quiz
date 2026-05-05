@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>월남 이상재 선생 50문제 퀴즈</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease;
+        }
+
+        .header h1 {
+            font-size: 42px;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .main-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease;
+        }
+
+        .quiz-container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            min-height: 500px;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .quiz-info {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .quiz-progress {
+            text-align: right;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.4s ease;
+            border-radius: 10px;
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 25px;
+            line-height: 1.5;
+            padding: 20px;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            border-radius: 5px;
+        }
+
+        .hint-box {
+            font-size: 13px;
+            color: #667eea;
+            background: #f0f4ff;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .hint-box.show {
+            display: block;
+        }
+
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 16px 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+            font-size: 15px;
+            text-align: left;
+        }
+
+        .option:hover:not(.disabled) {
+            border-color: #667eea;
+            background: #f5f7ff;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8ecff;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+        }
+
+        .feedback {
+            margin-top: 20px;
+            padding: 15px 18px;
+            border-radius: 8px;
+            font-weight: 500;
+            display: none;
+            animation: slideIn 0.4s ease;
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback.correct {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #4caf50;
+        }
+
+        .feedback.incorrect {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #f44336;
+        }
+
+        .explanation {
+            margin-top: 12px;
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.95;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-next:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-next:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-hint {
+            background: #fff3e0;
+            color: #e65100;
+            flex: 0.3;
+        }
+
+        .btn-hint:hover:not(:disabled) {
+            background: #ffe0b2;
+        }
+
+        .btn-reset {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-reset:hover {
+            background: #e0e0e0;
+        }
+
+        /* Start Screen */
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .start-screen {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .start-screen h2 {
+            font-size: 32px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .start-screen .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .about-section {
+            background: #f5f7ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #555;
+        }
+
+        .name-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
+
+        .name-input:focus {
+            outline: none;
+            border-color: #667eea;
+            background: #f5f7ff;
+        }
+
+        .btn-start {
+            padding: 14px 40px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        /* End Screen */
+        .end-screen {
+            background: white;
+            border-radius: 15px;
+            padding: 60px 40px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .end-screen h2 {
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .final-score {
+            font-size: 72px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 20px 0;
+        }
+
+        .score-detail {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .score-message {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.8;
+            margin-bottom: 30px;
+        }
+
+        /* Ranking Sidebar */
+        .ranking-sidebar {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .ranking-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ranking-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rank-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f5f7ff;
+            border-radius: 8px;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .rank-item.current {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            transform: scale(1.05);
+        }
+
+        .rank-badge {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .rank-item.current .rank-badge {
+            background: white;
+            color: #667eea;
+        }
+
+        .rank-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+        }
+
+        .rank-score {
+            font-weight: 700;
+            min-width: 35px;
+            text-align: right;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 900px) {
+            .main-wrapper {
+                grid-template-columns: 1fr;
+            }
+            
+            .ranking-sidebar {
+                position: static;
+            }
+
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .quiz-container {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏛️ 월남 이상재 선생 50문제 퀴즈</h1>
+            <p>근대 독립운동의 위대한 지도자, 이상재 선생의 생애와 정신을 배워봅시다</p>
+        </div>
+
+        <div class="main-wrapper">
+            <!-- 시작 화면 -->
+            <div class="screen active" id="startScreen">
+                <div class="start-screen">
+                    <h2>🎓 월남 이상재 선생 알아보기</h2>
+                    <div class="subtitle">
+                        한국 근대 독립운동의 거인, 이상재 선생(1850-1927)<br>
+                        당신의 역사 지식을 테스트해 보세요!
+                    </div>
+                    
+                    <div class="about-section">
+                        <strong>월남 이상재 선생은...</strong><br><br>
+                        • 독립협회의 창립자이자 지도자<br>
+                        • 민중 계몬과 교육 개혁의 선구자<br>
+                        • 신간회 초대 회장<br>
+                        • 한국 근대 교육사의 거인<br><br>
+                        이상재 선생의 고결한 삶과 독립정신을 배우는 여정에 함께하세요!
+                    </div>
+
+                    <input type="text" class="name-input" id="playerName" placeholder="당신의 이름을 입력하세요">
+                    <button class="btn-start" onclick="startGame()">게임 시작</button>
+                </div>
+            </div>
+
+            <!-- 퀴즈 화면 -->
+            <div class="screen" id="quizScreen">
+                <div class="quiz-container">
+                    <div class="quiz-header">
+                        <div class="quiz-info">
+                            <div>문제 <span id="currentQuestion">1</span> / 50</div>
+                            <div style="margin-top: 5px; font-weight: 600;">정답: <span id="correctCount">0</span>개</div>
+                        </div>
+                        <div class="quiz-progress">
+                            <span id="progressPercent">0</span>%
+                        </div>
+                    </div>
+
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+
+                    <div class="question-section">
+                        <div class="question-text" id="questionText"></div>
+                        <div class="hint-box" id="hintBox"></div>
+                        <div class="options" id="options"></div>
+                        <div class="feedback" id="feedback"></div>
+                    </div>
+
+                    <div class="button-group">
+                        <button class="btn-hint" id="hintBtn" onclick="showHint()">💡 힌트</button>
+                        <button class="btn-next" id="nextBtn" onclick="nextQuestion()" disabled>다음 문제</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 결과 화면 -->
+            <div class="screen" id="endScreen">
+                <div class="end-screen">
+                    <h2>🎉 게임 완료!</h2>
+                    <div class="final-score" id="finalScore">0/50</div>
+                    <div class="score-detail" id="scoreDetail"></div>
+                    
+                    <div class="score-message" id="scoreMessage"></div>
+
+                    <div class="button-group">
+                        <button class="btn-start" onclick="location.reload()">다시 도전</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 랭킹 사이드바 -->
+            <div id="rankingContainer" style="display: none;">
+                <div class="ranking-sidebar">
+                    <div class="ranking-title">🏆 실시간 랭킹</div>
+                    <div class="ranking-list" id="rankingList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 50문제 퀴즈 데이터 (Gemini 정확 버전)
+        const allQuizzes = [
+            { q: "이상재 선생이 1881년 일본의 근대 문물을 시찰하기 위해 참여한 사절단의 명칭은?", o: ["조사시찰단(신사유람단)", "영선사", "보빙사", "수신사"], a: 0, exp: "박정양의 수행원으로 참여하여 일본의 내무성, 농상무성 등을 시찰하며 근대 행정을 경험했습니다.", h: "비밀리에 일본의 근대화를 살피고 돌아온 단체로 '신사유람단'이라는 별칭이 있습니다." },
+            { q: "이상재 선생이 한성감옥에 투옥되었을 때 개신교로 개종하게 된 결정적인 계기는?", o: ["선교사로부터 전달받은 성경", "일본의 압박", "정치적 망명", "가족의 권유"], a: 0, exp: "옥중에서 성경을 읽으며 기독교 신앙을 받아들였고, 이는 이후 그의 사회 활동의 근간이 되었습니다.", h: "옥중에서 한 선교사가 건네준 책을 통해 새로운 세계관을 접하게 되었습니다." },
+            { q: "1920년대 민립대학 설립 운동 당시 선생이 내건 핵심 구호는?", o: ["한민족 일천만이 한 원씩", "내 살림 내 것으로", "아는 것이 힘, 배워야 산다", "신민을 위한 신교육"], a: 0, exp: "민족 스스로의 힘으로 교육의 최고 기관을 세우기 위해 범국민적 모금 운동을 전개했습니다.", h: "우리 민족 1,000만 명이 각각 1원씩 모으자는 구체적인 숫자가 들어간 구호입니다." },
+            { q: "이상재 선생이 1927년 민족주의 진영과 사회주의 진영의 협력으로 창립된 이 단체의 초대 회장이 되었습니다. 이 단체는?", o: ["신간회", "신민회", "독립협회", "근우회"], a: 0, exp: "좌우 합작의 상징적인 인물로서 비타협적 민족주의와 사회주의의 통합을 이끌었습니다.", h: "민족 유일당 운동의 결실로 만들어진 국내 최대 규모의 항일 단체입니다." },
+            { q: "이상재 선생의 유머와 기개를 보여주는 별명 중, 일본 경찰 앞에서도 당당했던 모습에서 유래한 것은?", o: ["조선의 거성(거대한 별)", "해동소크라테스", "백발의 투사", "서천의 호랑이"], a: 0, exp: "민족의 큰 스승이자 어둠 속을 밝히는 별과 같은 존재라는 뜻에서 붙여졌습니다.", h: "밤하늘에서 가장 밝게 빛나는 큰 별을 의미하는 한자어입니다." },
+            { q: "1887년 주미 공사 박정양의 서기관으로 파견되었을 때 선생이 담당했던 주요 업무는?", o: ["공사관 행정 및 외교 업무 보좌", "군사 기술 도입", "통상 조약 체결 전담", "유학생 관리"], a: 0, exp: "미국의 선진 문물을 기록하고 조선의 독립적 외교권을 수호하기 위해 노력했습니다.", h: "외교관으로서 다른 나라와 소통하고 내부 살림을 챙기는 역할을 떠올려 보세요." },
+            { q: "이상재 선생이 1924년 사장으로 취임하여 언론을 통해 민족의 목소리를 냈던 신문사는?", o: ["조선일보", "동아일보", "황성신문", "대한매일신보"], a: 0, exp: "정간과 압수라는 일제의 탄압 속에서도 민족의 대변자 역할을 충실히 수행했습니다.", h: "1920년에 창간되어 현재까지 발행되고 있는 주요 일간지 중 하나입니다." },
+            { q: "이상재 선생이 종로 YMCA(황성기독교청년회)에서 가장 역점을 두었던 사업은?", o: ["청년 교육 및 체육 활동", "선교 자금 모금", "해외 선교사 파견", "교회 건축"], a: 0, exp: "청년들이 건강한 신체와 정신을 가져야 나라를 되찾을 수 있다고 믿었습니다.", h: "미래 세대인 청년들을 올바르게 키우기 위한 구체적인 활동들을 생각해보세요." },
+            { q: "1927년 선생이 서거했을 때 우리 민족 역사상 최초로 거행된 장례 형식은?", o: ["사회장(사회단체 연합장)", "국장", "가족장", "사찰장"], a: 0, exp: "온 민족의 지도자로서 존경받았기에 여러 단체가 연합하여 민족의 이름으로 배웅했습니다.", h: "특정 개인이나 국가가 아닌 시민 사회 단체들이 주도하여 치른 장례입니다." },
+            { q: "이상재 선생이 강조한 '청년이 살아야 나라가 산다'는 말의 본질적인 의미는?", o: ["미래 세대의 실력 양성이 독립의 기초임", "청년들의 무장 투쟁 독려", "청년들의 적극적인 정치 입문", "청년들의 인구 증가 장려"], a: 0, exp: "청년들이 실력을 갖추고 민족 의식을 가질 때 비로소 진정한 주권을 회복할 수 있다고 보았습니다.", h: "나라의 미래를 짊어질 청년들이 갖추어야 할 '힘'이 무엇인지 생각해보세요." },
+            { q: "선생이 태어난 충남 서천군 한산면 종지리의 지리적 특징과 연관된 사실은?", o: ["전통적인 한산 모시의 본고장", "대규모 철광석 산지", "국제 무역항의 중심지", "고려 시대의 수도 후보지"], a: 0, exp: "고향 서천은 한산 모시로 유명하며 선생은 그 소박하고 강인한 지역적 정서를 품고 자랐습니다.", h: "유네스코 인류무형문화유산으로 지정된 이 지역의 특산물을 떠올려 보세요." },
+            { q: "독립협회 활동 당시 만민공동회에서 선생이 의장으로서 결의한 개혁안의 명칭은?", o: ["헌의 6조", "홍범 14조", "폐정개혁안 12조", "개혁 정강 14개조"], a: 0, exp: "정부 관료와 민중이 합의하여 고종에게 올린 6가지 국정 개혁안입니다.", h: "관민공동회에서 채택되어 고종에게 '바친' 6가지 조항이라는 뜻입니다." },
+            { q: "일제가 선생을 회유하기 위해 제안한 작위나 고위직을 거절하며 하신 말씀의 취지는?", o: ["망한 나라의 선비로서 지조를 지키겠다", "직위가 낮아서 만족스럽지 않다", "나중에 일본으로 건너가겠다", "돈으로 보상받고 싶다"], a: 0, exp: "일제의 작위는 민족에 대한 배신이며, 선비로서의 자존심을 꺾지 않겠다는 의지였습니다.", h: "선비의 절개와 지조를 나타내는 '절대 굽히지 않는 마음'을 생각해보세요." },
+            { q: "YMCA에서 야구팀 등을 지원하며 체육을 장려한 선생의 의도는?", o: ["협동심과 페어플레이 정신 고취", "올림픽 금메달 획득 준비", "외국어 습득의 기회", "단순한 여가 생활 권장"], a: 0, exp: "스포츠를 통해 청년들이 단합하고 규칙을 지키는 근대적 민주 시민 의식을 배우길 원했습니다.", h: "함께 땀 흘리며 하나의 목표를 향해 나아가는 과정의 중요성을 생각해보세요." },
+            { q: "이상재 선생이 옥중에서 만난 인물 중 훗날 대한민국 초대 대통령이 된 사람은?", o: ["이승만", "김구", "안창호", "박은식"], a: 0, exp: "한성감옥에서 함께 수감 생활을 하며 기독교를 접하고 지적인 교류를 나누었습니다.", h: "젊은 시절 독립협회 활동을 하다 감옥에 갇혔던 한 청년 정치인을 떠올려 보세요." },
+            { q: "선생이 1920년대 조선일보 사장 시절, 신문 정간을 무릅쓰고 비판했던 일제의 정책은?", o: ["민족 말살 통치와 언론 탄압", "철도 건설 사업", "화폐 개혁", "일본 국적 취득 장려"], a: 0, exp: "우리 말과 글을 지키고 일제의 부당한 지배 논리를 논설을 통해 정면으로 비판했습니다.", h: "민족의 입과 귀를 막으려는 일제의 행태를 가장 강력하게 비판했을 것입니다." },
+            { q: "선생의 유머 일화 중, 순사들이 뒤를 밟자 '개가 따라온다'고 하신 말씀의 숨은 뜻은?", o: ["자신을 감시하는 일제를 두려워하지 않음", "실제로 유기견이 많았던 상황", "동물을 사랑하는 마음 표현", "자신의 경호원이 필요하다는 뜻"], a: 0, exp: "감시자를 짐승에 비유함으로써 일제의 권위를 실추시키고 민중에게 용기를 주었습니다.", h: "상대방을 우스꽝스럽게 만들어 그들의 압박을 이겨내려는 재치를 생각해보세요." },
+            { q: "선생이 서거했을 때 장례 행렬의 규모는 어느 정도였나요?", o: ["약 10만 명 이상의 인파가 운집함", "가족들만 모인 조촐한 규모", "일본 경찰에 의해 100명으로 제한됨", "참석자가 거의 없었음"], a: 0, exp: "당시 서울 인구를 고려할 때 엄청난 규모였으며 민족 전체의 슬픔을 증명했습니다.", h: "서울 시내의 거리가 꽉 찰 정도로 수많은 사람이 모였습니다." },
+            { q: "신간회 활동 당시 선생이 가장 경계했던 세력은?", o: ["일제와 타협하려는 자치론자(기회주의자)", "강경 무장 투쟁가", "순수 예술인", "기독교 선교사"], a: 0, exp: "독립이 아닌 일제 내에서의 자치를 주장하는 자들이 민족의 단결을 해친다고 보았습니다.", h: "독립의 의지 없이 적당히 타협해서 권리를 얻으려는 사람들을 경계했습니다." },
+            { q: "이상재 선생의 호 중 하나인 '월남'의 뜻은?", o: ["달이 뜨는 남쪽 언덕", "베트남(월남)을 응원함", "넘어가는 달", "남쪽 나라의 선비"], a: 0, exp: "고향 서천의 마을 이름에서 따온 것으로, 소박하고 평화로운 이미지를 담고 있습니다.", h: "고향 마을의 정취를 담은 '달(月)'과 '남쪽(南)'의 조합입니다." },
+            { q: "YMCA에서 야구 경기를 할 때 선생이 직접 시구자로 나섰던 이유는?", o: ["스포츠를 통한 민족적 자신감 고취", "야구 규칙을 배우기 위해", "자신의 투구 실력을 뽐내려고", "미국 선교사와의 친목 도모"], a: 0, exp: "청년들의 활동을 격려하고 민족의 기상이 살아있음을 보여주려 했습니다.", h: "어른으로서 청년들의 활동을 지지하고 응원하는 마음을 생각해보세요." },
+            { q: "이상재 선생의 서거 소식을 들은 당시 신문들이 쓴 기사 제목의 특징은?", o: ["민족의 큰 스승을 잃은 슬픔 표현", "업적에 대한 건조한 나열", "일제의 승리 선언", "후계자 선정 문제 집중"], a: 0, exp: "어두운 시기에 길을 제시하던 스승의 부재를 온 민족이 통곡한다는 내용이 주를 이뤘습니다.", h: "모두가 존경하던 어른이 돌아가셨을 때의 비통한 심정을 담은 표현입니다." },
+            { q: "민립대학 설립 운동이 일제의 방해로 실패하자 일제가 세운 대학은?", o: ["경성제국대학", "이화여자대학교", "연희전문학교", "보성전문학교"], a: 0, exp: "조선인의 고등 교육 요구를 무마하고 일제의 통치 이념을 주입하기 위해 세운 관립 대학입니다.", h: "현재 서울대학교의 전신 중 하나로 일제가 세운 관립 학교입니다." },
+            { q: "이상재 선생이 옥중에서 기독교를 접한 후 변화된 생각은?", o: ["박애와 평등 정신을 바탕으로 한 민족 구원", "현실 정치를 완전히 떠나기로 함", "외국으로의 영구 이민 결심", "일본의 종교와 통합 주장"], a: 0, exp: "개인의 구원을 넘어 민족 전체가 깨어나야 한다는 사회적 기독교 정신을 확립했습니다.", h: "모든 사람이 평등하다는 가르침이 민족 독립과 어떻게 연결될지 생각해보세요." },
+            { q: "선생이 YMCA에서 청년들에게 강조했던 '절제'와 '도덕성'의 이유는?", o: ["독립 운동을 할 수 있는 강인한 내면 형성", "일본 법규를 잘 지키기 위해", "수도사가 되기 위한 훈련", "취업에 유리하기 때문"], a: 0, exp: "스스로를 통제할 수 있는 사람만이 민족의 큰일을 도모할 수 있다고 믿었습니다.", h: "스스로를 이길 수 있는 힘이 나라를 되찾는 힘으로 이어진다는 논리입니다." },
+            { q: "이상재 선생이 관직에 있을 때 부정부패를 멀리했던 일화의 특징은?", o: ["청렴결백함과 원칙 준수", "엄격한 처벌 중심의 행정", "일본식 관료주의 수용", "무조건적인 상관의 명령 복종"], a: 0, exp: "권력을 이용해 사익을 채우지 않았으며 이는 민중의 깊은 신뢰를 얻는 바탕이 되었습니다.", h: "재물에 욕심을 내지 않고 깨끗하게 공직 생활을 한 태도를 의미하는 단어입니다." },
+            { q: "독립협회 시절 선생이 참여했던 '관민공동회'의 성격은?", o: ["정부 관리와 민중이 함께 국정을 논의함", "정부 관리들만의 비밀 회의", "외국 외교관들과의 연회", "왕실의 제사 의식"], a: 0, exp: "민중의 목소리가 국정에 반영되는 근대적 민주주의의 초기 형태를 보여주었습니다.", h: "관리(官)와 백성(民)이 한자리에 모였다는 뜻의 이름에 주목해보세요." },
+            { q: "선생이 1920년대 신간회 초대 회장으로 추대된 결정적인 이유는?", o: ["민족주의와 사회주의 진영 모두가 존경함", "가장 많은 자금을 기부함", "일본어 실력이 뛰어남", "젊은 층의 지지 부족 보완"], a: 0, exp: "이념적 갈등을 넘어선 민족의 최고 원로로서 통합을 이끌 적임자로 인정받았습니다.", h: "서로 다른 생각을 가진 사람들이 모두 인정할 수 있는 '어른'의 존재를 생각해보세요." },
+            { q: "선생이 서천군 한산면 생가에서 유년 시절에 익힌 것은?", o: ["전통 유학 공부와 선비 정신", "서양 과학 기술", "상업 및 무역 실무", "일본어 및 외국어 교육"], a: 0, exp: "가문의 학풍을 이어받아 충효와 지조를 중시하는 선비로서의 기틀을 다졌습니다.", h: "조선 시대 선비가 갖추어야 할 기본 소양이 무엇인지 생각해보세요." },
+            { q: "선생이 YMCA에서 연설할 때 자주 사용했던 방식은?", o: ["쉬운 비유와 해학을 섞은 열정적 연설", "철학적이고 난해한 이론 나열", "원고를 그대로 읽는 정적인 방식", "외국 선교사의 말을 통역만 함"], a: 0, exp: "어려운 용어 대신 대중의 눈높이에서 유머를 섞어 독립 의지를 고취했습니다.", h: "듣는 사람을 즐겁게하면서도 가슴을 울리게 만드는 화법을 떠올려 보세요." },
+            { q: "이상재 선생이 1920년대 물산장려운동과 민립대학 설립 운동을 병행하며 강조한 경제관은?", o: ["경제적 자립과 실력 양성의 조화", "외국 자본의 적극 유치", "일본 기업과의 합작 권장", "무조건적인 근검절약 강조"], a: 0, exp: "교육만으로는 부족하며 경제적 기초가 탄탄해야 진정한 독립을 이룰 수 있다고 보았습니다.", h: "우리 스스로의 힘으로 먹고살고 배우는 체계를 갖추는 것을 의미합니다." },
+            { q: "선생의 유머 일화 중 '조선은 감옥이다'라고 표현했던 배경은?", o: ["일제의 감시로 인해 자유가 없는 현실 풍자", "실제 감옥 시설의 개선을 촉구함", "조선 사람들의 성격 비판", "건축 기술의 부족 한탄"], a: 0, exp: "옥 밖에서도 일제의 통제를 받는 민중의 처지를 감옥에 비유하여 비판했습니다.", h: "창살 없는 감옥처럼 느껴졌던 일제 강점기 민중의 삶을 생각해보세요." },
+            { q: "1927년 선생의 사회장 당시 만장(애도글)의 수가 유독 많았던 이유는?", o: ["온 민족의 정신적 지주였음을 입증", "정부에서 강제로 작성하게 함", "종이 가격이 매우 저렴했기 때문", "문맹률이 낮아 글쓰기가 유행함"], a: 0, exp: "각계각층의 단체와 개인이 자발적으로 참여하여 선생의 덕망을 기렸습니다.", h: "얼마나 많은 사람이 진심으로 그분의 마지막을 아쉬워했는지 생각해보세요." },
+            { q: "선생이 YMCA 활동을 통해 기르고자 했던 '근대적 인간상'은?", o: ["신의와 실력을 겸비한 자유로운 시민", "일본 법을 잘 따르는 순응적인 인간", "전통 예절만을 중시하는 보수적 인간", "부유하고 권력 있는 상류층"], a: 0, exp: "종교적 경건함과 더불어 근대적 지식과 강한 의지를 가진 사람을 추구했습니다.", h: "자신의 권리를 알고 민족의 책임을 다하는 사람의 모습을 떠올려 보세요." },
+            { q: "이상재 선생이 옥중에서 죽음의 위기를 넘기며 보였던 태도는?", o: ["평온함을 유지하며 성경 연구에 몰두", "살려달라고 일본 총독에게 탄원서 작성", "탈옥 계획 수립 및 실행", "자신의 행동을 후회하며 통곡함"], a: 0, exp: "신앙의 힘으로 죽음에 대한 두려움을 극복하고 내면의 평화를 얻었습니다.", h: "두려움을 이겨내고 오히려 자신을 돌아보는 시간을 가졌던 태도를 생각해보세요." },
+            { q: "선생의 해학적 풍자 중, 일본 천황을 은근히 비꼰 것으로 알려진 일화의 핵심은?", o: ["절대 권력의 허구성을 재치 있게 폭로", "일본 문화에 대한 찬양", "단순한 농담으로 분위기를 띄움", "일본군 입대를 권장함"], a: 0, exp: "일본인들이 신성시하는 존재를 인간적인 약점으로 풍자하여 지배 논리를 약화시켰습니다.", h: "상대가 가장 중요하게 생각하는 것을 무너뜨리는 유머의 힘을 생각해보세요." },
+            { q: "1920년대 조선일보 사장 시절 선생이 강조한 언론의 사명은?", o: ["민중의 눈과 귀가 되어 독립의 길을 제시", "정부 홍보물의 충실한 전달", "자극적인 기사를 통한 매출 증대", "일본 소식을 빠르고 정확하게 보도"], a: 0, exp: "탄압 속에서도 진실을 말하고 민족이 나아갈 방향을 제시하는 등대 역할을 강조했습니다.", h: "억압받는 사람들이 신문을 통해 무엇을 얻고 싶어 했을지 생각해보세요." },
+            { q: "이상재 선생의 본관인 '한산 이씨' 가문의 유명한 성리학자는?", o: ["목은 이색", "퇴계 이황", "율곡 이이", "다산 정약용"], a: 0, exp: "한산 이씨의 중시조이며 고려 말의 대학자로 선생은 그 후손으로서의 자부심이 컸습니다.", h: "선생의 본관인 '한산'과 연결된 역사적 인물을 찾아보세요." },
+            { q: "선생이 YMCA 야구팀을 창단하며 청년들에게 건넨 격려의 철학은?", o: ["정정당당한 승부와 민족적 자긍심", "수단과 방법을 가리지 않는 승리", "상대 팀에 대한 무조건적인 복종", "부상 방지만을 최우선으로 함"], a: 0, exp: "운동장 안에서의 공정한 경쟁이 사회에서의 독립 운동 정신으로 이어진다고 보았습니다.", h: "규칙을 지키며 당당하게 싸우는 스포츠맨십이 우리 민족에게 왜 필요했을까요?" },
+            { q: "이상재 선생이 서천 생가에서 자라며 본받으려 했던 부친의 가르침은?", o: ["정직함과 가문의 명예를 지키는 삶", "많은 돈을 모으는 법", "무조건적인 권력에의 지향", "해외로 떠나 성공하는 삶"], a: 0, exp: "전통적인 유교 가풍 속에서 도덕적 엄격함과 성실함을 배웠습니다.", h: "전통적인 선비 가문에서 가장 중요하게 여긴 가치가 무엇인지 떠올려 보세요." },
+            { q: "1927년 신간회 창립 당시 선생의 나이는 대략 어떠했나요?", o: ["70대의 고령임에도 민족 통합의 선두에 섬", "20대의 혈기 넘치는 청년", "40대의 중진 정치인", "활동을 중단한 은퇴 노인"], a: 0, exp: "나이를 잊은 열정으로 젊은 청년들과 함께 민족의 미래를 설계했습니다.", h: "민족의 '원로'로서 모든 진영을 통합할 수 있었던 나이대를 생각해보세요." },
+            { q: "선생의 해학 일화 중, 고위 관료들의 무능함을 꼬집기 위해 사용한 표현은?", o: ["나랏일보다 자기 배를 채우는 '배부른 돼지'", "나라를 지키는 든든한 기둥", "미래를 보는 천리안", "일본의 진정한 친구"], a: 0, exp: "부패한 관리들의 탐욕을 짐승에 비유하여 통렬하게 비판했습니다.", h: "탐욕스럽고 게으른 모습에 빗대어 관리들의 타락을 비판한 비유입니다." },
+            { q: "이상재 선생이 옥중에서 기독교인이 된 이후 삶의 태도 변화는?", o: ["더욱 겸손하고 희생적인 민족 봉사자로 거듭남", "타 종교를 배척하는 공격적 성향", "모든 사회 활동을 중단하고 기도에만 전념", "일제의 통치에 순응하는 평화주의자"], a: 0, exp: "희생정신을 민족의 고난과 연결하여 헌신적인 삶을 살았습니다.", h: "종교적 가르침이 선생의 독립 운동을 어떻게 더 단단하게 만들었을지 생각해보세요." },
+            { q: "민립대학 설립 운동이 전국적인 호응을 얻었던 근본 원인은?", o: ["우리 민족만의 고등 교육을 갈망하던 뜨거운 열기", "일본 정부의 적극적인 홍보 지원", "세금을 줄여준다는 약속", "일본 대학들의 입학 거부"], a: 0, exp: "교육이 곧 국력이라는 믿음이 민중들 사이에 널리 퍼져 있었습니다.", h: "누가 시켜서가 아니라 스스로 배우고자 했던 민족의 의지를 생각해보세요." },
+            { q: "이상재 선생이 한산면에서 보낸 청년 시절, 지역 사회에 미친 영향은?", o: ["청년들에게 새로운 지식과 민족 정신 전파", "농업 기술의 대대적 혁신 주도", "지역 관청에서의 엄격한 세금 징수", "대규모 상업 단지 조성"], a: 0, exp: "고향에서도 항상 배우고 가르치는 일에 앞장서며 주변에 큰 영감을 주었습니다.", h: "나중에 '청년들의 대장'이 될 싹이 이미 고향에서부터 보였다는 점을 기억하세요." },
+            { q: "1920년대 조선일보가 정간될 때마다 선생이 보였던 태도는?", o: ["민족의 정의를 위한 당연한 희생으로 받아들임", "일본 경찰에 즉각 사과하고 복간 요청", "신문사 폐업 후 다른 사업 모색", "자신의 재산을 팔아 일본에 뇌물 공세"], a: 0, exp: "신문이 멈추는 것은 두려웠으나 진실을 굽히는 것은 더 큰 죄라고 생각했습니다.", h: "어려움 속에서도 자신의 신념을 굽히지 않는 대쪽 같은 성품을 떠올려 보세요." },
+            { q: "선생의 해학 일화 중, 고령임에도 청년들과 어울리며 하신 말씀의 요지는?", o: ["나이는 숫자에 불과하며 정신은 항상 청년임", "늙었으니 나를 무조건 대접하라", "과거의 영광만을 반복해서 이야기함", "젊은이들은 아무것도 모른다고 훈계함"], a: 0, exp: "늙었다는 핑계로 안주하지 않고 청년들의 에너지를 운동의 동력으로 삼았습니다.", h: "선생님이 스스로를 '영원한 청년'이라고 부르셨던 이유를 생각해보세요." },
+            { q: "이상재 선생이 옥중에서 병에 걸렸을 때도 간수나 순사들에게 보였던 모습은?", o: ["그들을 미워하지 않고 인격적으로 대우함", "매일 큰 소리로 그들을 저주함", "약을 구하기 위해 그들에게 굽실거림", "자신의 특별 대우해달라고 요구함"], a: 0, exp: "원수조차 사랑하라는 가르침을 실천하며 그들에게 인간적인 감동을 주었습니다.", h: "적조차 존경하게 만드는 인격의 힘이 어디서 나왔을지 생각해보세요." },
+            { q: "선생이 YMCA에서 행한 마지막 연설의 메시지는?", o: ["청년들의 단합과 멈추지 않는 실력 양성", "개인적인 재산 관리 당부", "일본으로의 유학 권장", "자신의 장례식을 화려하게 해달라는 요청"], a: 0, exp: "죽음이 가까웠음을 알면서도 민족의 미래인 청년들에게 희망의 메시지를 남겼습니다.", h: "생의 마지막 순간까지도 그분의 마음이 누구를 향해 있었는지 생각해보세요." },
+            { q: "오늘날 우리가 이상재 선생을 '민족의 스승'으로 기억해야 하는 가장 큰 이유는?", o: ["이념과 세대를 통합하고 청년에게 희망을 준 삶", "가장 많은 훈장을 받았기 때문에", "강력한 군사적 지도력을 가졌기 때문에", "외국어를 아주 잘했기 때문에"], a: 0, exp: "갈등이 많은 현대 사회에 소통과 통합의 중요성을 몸소 보여주셨기 때문입니다.", h: "서로 다른 사람들을 하나로 묶어주고 미래를 준비하게 한 그분의 위대한 정신을 생각해보세요." }
+        ];
+
+        let currentIndex = 0;
+        let score = 0;
+        let playerName = "";
+        let answered = false;
+        let ranking = JSON.parse(localStorage.getItem('quizRanking') || '[]');
+        let selectedAnswer = null;
+        let hintShown = false;
+
+        function startGame() {
+            playerName = document.getElementById('playerName').value.trim() || '익명의 플레이어';
+            if (playerName.length > 15) playerName = playerName.substring(0, 15);
+            
+            document.getElementById('startScreen').classList.remove('active');
+            document.getElementById('quizScreen').classList.add('active');
+            document.getElementById('rankingContainer').style.display = 'block';
+            
+            currentIndex = 0;
+            score = 0;
+            answered = false;
+            
+            loadQuestion();
+            updateRanking();
+        }
+
+        function loadQuestion() {
+            if (currentIndex >= allQuizzes.length) {
+                endGame();
+                return;
+            }
+
+            const quiz = allQuizzes[currentIndex];
+            document.getElementById('questionText').textContent = quiz.q;
+            document.getElementById('currentQuestion').textContent = currentIndex + 1;
+            
+            const allOptions = [...quiz.o].sort(() => Math.random() - 0.5);
+            const optionsDiv = document.getElementById('options');
+            optionsDiv.innerHTML = '';
+            
+            allOptions.forEach((opt, idx) => {
+                const btn = document.createElement('div');
+                btn.className = 'option';
+                btn.textContent = opt;
+                btn.onclick = () => selectAnswer(opt, btn);
+                btn.style.animationDelay = `${idx * 0.1}s`;
+                optionsDiv.appendChild(btn);
+            });
+            
+            document.getElementById('feedback').classList.remove('show', 'correct', 'incorrect');
+            document.getElementById('hintBox').classList.remove('show');
+            document.getElementById('nextBtn').disabled = true;
+            document.getElementById('hintBtn').disabled = false;
+            answered = false;
+            hintShown = false;
+            selectedAnswer = null;
+            
+            updateProgress();
+        }
+
+        function selectAnswer(answer, element) {
+            if (answered) return;
+            answered = true;
+            selectedAnswer = answer;
+            
+            const quiz = allQuizzes[currentIndex];
+            const isCorrect = answer === quiz.o[quiz.a];
+            
+            document.querySelectorAll('.option').forEach(opt => {
+                opt.classList.add('disabled');
+                if (opt.textContent === quiz.o[quiz.a]) {
+                    opt.classList.add('correct');
+                } else if (opt.textContent === answer && !isCorrect) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            if (isCorrect) {
+                score++;
+            }
+            
+            const feedback = document.getElementById('feedback');
+            feedback.classList.add('show');
+            feedback.classList.toggle('correct', isCorrect);
+            feedback.classList.toggle('incorrect', !isCorrect);
+            
+            const feedbackText = isCorrect ? '✓ 정답입니다!' : `✗ 틀렸습니다. 정답: ${quiz.o[quiz.a]}`;
+            feedback.innerHTML = `<div>${feedbackText}</div><div class="explanation">${quiz.exp}</div>`;
+            
+            document.getElementById('correctCount').textContent = score;
+            document.getElementById('nextBtn').disabled = false;
+            document.getElementById('hintBtn').disabled = true;
+            updateRanking();
+        }
+
+        function showHint() {
+            if (answered || hintShown) return;
+            hintShown = true;
+            const quiz = allQuizzes[currentIndex];
+            const hintBox = document.getElementById('hintBox');
+            hintBox.textContent = '💡 ' + quiz.h;
+            hintBox.classList.add('show');
+        }
+
+        function nextQuestion() {
+            currentIndex++;
+            if (currentIndex < allQuizzes.length) {
+                loadQuestion();
+            } else {
+                endGame();
+            }
+        }
+
+        function updateProgress() {
+            const percentage = Math.round(((currentIndex) / allQuizzes.length) * 100);
+            document.getElementById('progressPercent').textContent = percentage;
+            document.getElementById('progressFill').style.width = percentage + '%';
+        }
+
+        function updateRanking() {
+            const existingIndex = ranking.findIndex(p => p.name === playerName);
+            if (existingIndex >= 0) {
+                ranking[existingIndex].score = Math.max(ranking[existingIndex].score, score);
+            } else {
+                ranking.push({ name: playerName, score: score });
+            }
+            
+            ranking.sort((a, b) => b.score - a.score);
+            localStorage.setItem('quizRanking', JSON.stringify(ranking));
+            
+            const rankingList = document.getElementById('rankingList');
+            rankingList.innerHTML = ranking.slice(0, 10).map((p, i) => {
+                const isCurrentPlayer = p.name === playerName;
+                return `
+                    <div class="rank-item ${isCurrentPlayer ? 'current' : ''}">
+                        <div class="rank-badge">${i + 1}</div>
+                        <div class="rank-name">${p.name}</div>
+                        <div class="rank-score">${p.score}점</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function endGame() {
+            const percentage = Math.round((score / allQuizzes.length) * 100);
+            
+            document.getElementById('quizScreen').classList.remove('active');
+            document.getElementById('endScreen').classList.add('active');
+            
+            document.getElementById('finalScore').textContent = `${score}/50`;
+            document.getElementById('scoreDetail').textContent = `정답률: ${percentage}%`;
+            
+            let message = '';
+            if (percentage >= 90) {
+                message = `${playerName}님! 🌟 월남 이상재 선생에 대한 깊이 있는 이해를 보여주셨습니다. 진정한 역사 전문가입니다!`;
+            } else if (percentage >= 80) {
+                message = `${playerName}님! 🎯 이상재 선생의 생애와 업적을 잘 알고 계십니다. 계속 학습하면 더욱 완벽해질 것입니다.`;
+            } else if (percentage >= 70) {
+                message = `${playerName}님! 📚 좋은 이해도를 보이고 있습니다. 더 많은 학습으로 지식을 다져보세요.`;
+            } else if (percentage >= 60) {
+                message = `${playerName}님! 💪 기본 지식을 갖추었습니다. 다시 한 번 도전해보세요!`;
+            } else {
+                message = `${playerName}님! 🎓 이상재 선생의 삶과 정신을 더 깊이 있게 공부해보세요. 다시 도전해보세요!`;
+            }
+            
+            document.getElementById('scoreMessage').textContent = message;
+        }
+
+        window.addEventListener('load', () => {
+            updateRanking();
+        });
+    </script>
+</body>
+</html>
